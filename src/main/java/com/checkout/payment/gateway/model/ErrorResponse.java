@@ -1,14 +1,14 @@
 package com.checkout.payment.gateway.model;
 
 public class ErrorResponse {
-  private final String message;
+
+  private String message = "";
 
   public ErrorResponse(String message) {
     this.message = message;
   }
 
-  public String getMessage() {
-    return message;
+  public ErrorResponse() {
   }
 
   @Override
@@ -16,5 +16,9 @@ public class ErrorResponse {
     return "ErrorResponse{" +
         "message='" + message + '\'' +
         '}';
+  }
+
+  public String getMessage() {
+    return message;
   }
 }

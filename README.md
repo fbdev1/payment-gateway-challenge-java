@@ -4,7 +4,18 @@ A comprehensive Java Spring Boot payment gateway application with validation, er
 
 ## Table of Contents
 
-
+- [Architecture](#architecture)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Validation](#validation)
+- [Logging](#logging)
+- [Luhn Algorithm Implementation](#luhn-algorithm-implementation)
+- [Getting Started](#getting-started)
+- [Testing](#testing)
+- [Future Improvements](#future-improvements)
+- [Development Guidelines](#development-guidelines)
 
 ## Architecture
 

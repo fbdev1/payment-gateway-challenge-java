@@ -4,19 +4,7 @@ A comprehensive Java Spring Boot payment gateway application with validation, er
 
 ## Table of Contents
 
-- [Architecture](#architecture)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Validation](#validation)
-- [Security Features](#security-features)
-- [Logging](#logging)
-- [Luhn Algorithm](#luhn-algorithm)
-- [Getting Started](#getting-started)
-- [Running with Docker](#running-with-docker)
-- [Testing](#testing)
-- [Future Improvements](#future-improvements)
+
 
 ## Architecture
 
@@ -71,8 +59,6 @@ The application follows a layered architecture pattern:
 - **Bank Integration**: External bank simulator for payment authorization
 - **Validation**: Comprehensive input validation
 - **Error Handling**: Centralized exception handling
-- **Idempotency**: Prevent duplicate payment processing
-- **CSRF Protection**: Cross-site request forgery protection
 
 ### Validation Features
 
@@ -108,6 +94,7 @@ The application follows a layered architecture pattern:
 - **JUnit 5**: Modern testing framework
 - **MockMvc**: Spring MVC testing
 - **Mockito**: Mocking framework for unit tests
+- **Postman collection**: postman/Payment Gateway Challenge.postman_collection.json
 
 ### Infrastructure
 - **Docker**: Containerized deployment
@@ -182,28 +169,53 @@ Process a new payment
 Content-Type: application/json
 ```
 
-**Request:**
+**Authorised Request:**
 ```json
 {
-  "cardNumber": "4532015112830366",
-  "expiryMonth": 12,
-  "expiryYear": 2025,
-  "currency": "USD",
-  "amount": 10000,
-  "cvv": "123"
+  "cardNumber": "378282246310005",
+  "expiryMonth": 4,
+  "expiryYear": 2026,
+  "cvv": "123",
+  "currency": "GBP",
+  "amount": 100
 }
 ```
 
-**Response:**
+**Authorised Response:**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id": "fd36c62e-8237-4397-8e0c-cb3bbf232035",
   "status": "Authorized",
+  "cardNumberLastFour": "0005",
+  "expiryMonth": 4,
+  "expiryYear": 2026,
+  "currency": "GBP",
+  "amount": 100
+}
+```
+
+**Declined Request:**
+```json
+{
+  "cardNumber": "4532015112830366",
+  "expiryMonth": 4,
+  "expiryYear": 2026,
+  "cvv": "123",
+  "currency": "GBP",
+  "amount": 100
+}
+```
+
+**Declined Response:**
+```json
+{
+  "id": "37429f70-95b4-4f8e-8255-8fb07412297a",
+  "status": "Declined",
   "cardNumberLastFour": "0366",
-  "expiryMonth": 12,
-  "expiryYear": 2025,
-  "currency": "USD",
-  "amount": 10000
+  "expiryMonth": 4,
+  "expiryYear": 2026,
+  "currency": "GBP",
+  "amount": 100
 }
 ```
 
@@ -240,6 +252,12 @@ The application implements the **Luhn algorithm** for credit card validation:
 // 1. Double every second digit from right
 // 2. Sum all digits
 // 3. If sum % 10 == 0, card is valid
+
+
+//    378282246310005 Authorised
+//    371449635398431 Authorised
+//    378734493671000 BadGateway
+//    6011000990139424 Declined
 ```
 
 **Validation Rules:**
@@ -281,7 +299,6 @@ All validation errors return structured responses:
 **Common Error Codes:**
 - `400 Bad Request` - Validation failures
 - `404 Not Found` - Payment not found
-- `409 Conflict` - Idempotency key reused with different data
 - `502 Bad Gateway` - Bank integration errors
 - `500 Internal Server Error` - Unexpected errors
 

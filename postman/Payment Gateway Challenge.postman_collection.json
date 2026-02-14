@@ -6,107 +6,72 @@
 	},
 	"item": [
 		{
-			"name": "GET",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8090/v1/payments/0f878131-4577-4a6d-8ca3-2b831fcaa193",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8090",
-					"path": [
-						"v1",
-						"payments",
-						"0f878131-4577-4a6d-8ca3-2b831fcaa193"
-					]
+			"name": "POST authorised",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code === 200){",
+							"    const responseBody = JSON.parse(pm.response.text())",
+							"    pm.globals.set('paymentId', responseBody.id);",
+							"}",
+							"",
+							"let jsonData = pm.response.json();",
+							"let requestBody = JSON.parse(pm.request.body.raw);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"    pm.expect(jsonData).to.have.property(\"cardNumberLastFour\");",
+							"    pm.expect(jsonData).to.have.property(\"expiryMonth\");",
+							"    pm.expect(jsonData).to.have.property(\"expiryYear\");",
+							"    pm.expect(jsonData).to.have.property(\"currency\");",
+							"    pm.expect(jsonData).to.have.property(\"amount\");",
+							"});",
+							"",
+							"pm.test(\"Payment status is Authorized\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"Authorized\");",
+							"});",
+							"",
+							"pm.test(\"Card last four digits are correct\", function () {",
+							"    const lastFour = requestBody.cardNumber.slice(-4);",
+							"    pm.expect(jsonData.cardNumberLastFour).to.eql(lastFour);",
+							"});",
+							"",
+							"pm.test(\"Expiry month matches request\", function () {",
+							"    pm.expect(jsonData.expiryMonth).to.eql(requestBody.expiryMonth);",
+							"});",
+							"",
+							"pm.test(\"Expiry year matches request\", function () {",
+							"    pm.expect(jsonData.expiryYear).to.eql(requestBody.expiryYear);",
+							"});",
+							"",
+							"pm.test(\"Currency matches request\", function () {",
+							"    pm.expect(jsonData.currency).to.eql(requestBody.currency);",
+							"});",
+							"",
+							"pm.test(\"Amount matches request\", function () {",
+							"    pm.expect(jsonData.amount).to.eql(requestBody.amount);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
 				}
-			},
-			"response": [
-				{
-					"name": "200 Ok",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8090/v1/payments/4ce41536-6659-4b88-8346-b5497eaa95e",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8090",
-							"path": [
-								"v1",
-								"payments",
-								"4ce41536-6659-4b88-8346-b5497eaa95e"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": null,
-					"cookie": [],
-					"body": "{\n    \"id\": \"0f878131-4577-4a6d-8ca3-2b831fcaa193\",\n    \"status\": \"Authorized\",\n    \"cardNumberLastFour\": \"8877\",\n    \"expiryMonth\": 4,\n    \"expiryYear\": 2026,\n    \"currency\": \"GBP\",\n    \"amount\": 100\n}"
-				},
-				{
-					"name": "404 Not Found",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8090/v1/payments/4ce41536-6659-4b88-8346-b5497eaa952",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8090",
-							"path": [
-								"v1",
-								"payments",
-								"4ce41536-6659-4b88-8346-b5497eaa952"
-							]
-						}
-					},
-					"status": "Not Found",
-					"code": 404,
-					"_postman_previewlanguage": "json",
-					"header": null,
-					"cookie": [],
-					"body": "{\n    \"message\": \"Page not found\"\n}"
-				},
-				{
-					"name": "400 Invalid argument format",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8090/v1/payments/0f8781",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8090",
-							"path": [
-								"v1",
-								"payments",
-								"0f8781"
-							]
-						}
-					},
-					"status": "Bad Request",
-					"code": 400,
-					"_postman_previewlanguage": "json",
-					"header": null,
-					"cookie": [],
-					"body": "{\n    \"message\": \"Invalid argument format\"\n}"
-				}
-			]
-		},
-		{
-			"name": "POST",
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -277,6 +242,553 @@
 					"body": "{\n    \"message\": \"Error processing payment. Acquiring Bank integration error.Try again later.\"\n}"
 				}
 			]
+		},
+		{
+			"name": "POST declined",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code === 200){",
+							"    const responseBody = JSON.parse(pm.response.text())",
+							"    pm.globals.set('paymentIdDecl', responseBody.id);",
+							"}",
+							"let jsonData = pm.response.json();",
+							"let requestBody = JSON.parse(pm.request.body.raw);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"    pm.expect(jsonData).to.have.property(\"cardNumberLastFour\");",
+							"    pm.expect(jsonData).to.have.property(\"expiryMonth\");",
+							"    pm.expect(jsonData).to.have.property(\"expiryYear\");",
+							"    pm.expect(jsonData).to.have.property(\"currency\");",
+							"    pm.expect(jsonData).to.have.property(\"amount\");",
+							"});",
+							"",
+							"pm.test(\"Payment status is Declined\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"Declined\");",
+							"});",
+							"",
+							"pm.test(\"Card last four digits are correct\", function () {",
+							"    const lastFour = requestBody.cardNumber.slice(-4);",
+							"    pm.expect(jsonData.cardNumberLastFour).to.eql(lastFour);",
+							"});",
+							"",
+							"pm.test(\"Expiry month matches request\", function () {",
+							"    pm.expect(jsonData.expiryMonth).to.eql(requestBody.expiryMonth);",
+							"});",
+							"",
+							"pm.test(\"Expiry year matches request\", function () {",
+							"    pm.expect(jsonData.expiryYear).to.eql(requestBody.expiryYear);",
+							"});",
+							"",
+							"pm.test(\"Currency matches request\", function () {",
+							"    pm.expect(jsonData.currency).to.eql(requestBody.currency);",
+							"});",
+							"",
+							"pm.test(\"Amount matches request\", function () {",
+							"    pm.expect(jsonData.amount).to.eql(requestBody.amount);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cardNumber\": \"6011000990139424\",\n    \"expiryMonth\": 4,\n    \"expiryYear\": 2026,\n    \"cvv\": \"123\",\n    \"currency\": \"GBP\",\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8090/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST validation error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Response contains status and message\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"    pm.expect(jsonData).to.have.property(\"message\");",
+							"});",
+							"",
+							"pm.test(\"Payment status is Rejected\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"Rejected\");",
+							"});",
+							"",
+							"pm.test(\"Error message is not empty\", function () {",
+							"    pm.expect(jsonData.message).to.be.a(\"string\");",
+							"    pm.expect(jsonData.message.length).to.be.greaterThan(0);",
+							"});",
+							"",
+							"pm.test(\"Validation error mentions expiryMonth\", function () {",
+							"    pm.expect(jsonData.message.toLowerCase()).to.include(\"expirymonth\");",
+							"});",
+							"",
+							"pm.test(\"Validation error mentions valid range\", function () {",
+							"    pm.expect(jsonData.message).to.include(\"1-12\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cardNumber\": \"6011000990139424\",\n    \"expiryMonth\": 41,\n    \"expiryYear\": 2026,\n    \"cvv\": \"123\",\n    \"currency\": \"GBP\",\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8090/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST bad gateway",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 502 Bad Gateway\", function () {",
+							"    pm.response.to.have.status(502);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Response contains message\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"message\");",
+							"});",
+							"",
+							"pm.test(\"Error message is not empty\", function () {",
+							"    pm.expect(jsonData.message).to.be.a(\"string\");",
+							"    pm.expect(jsonData.message.length).to.be.greaterThan(0);",
+							"});",
+							"",
+							"pm.test(\"Message mentions processing error\", function () {",
+							"    pm.expect(jsonData.message.toLowerCase()).to.include(\"error processing payment\");",
+							"});",
+							"",
+							"pm.test(\"Message suggests retry later\", function () {",
+							"    pm.expect(jsonData.message.toLowerCase()).to.include(\"try again later\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cardNumber\": \"378734493671000\",\n    \"expiryMonth\": 4,\n    \"expiryYear\": 2026,\n    \"cvv\": \"123\",\n    \"currency\": \"GBP\",\n    \"amount\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8090/v1/payments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET authorised",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Response contains payment id\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"});",
+							"",
+							"pm.test(\"Returned id matches requested id\", function () {",
+							"    pm.expect(jsonData.id).to.eql(pm.variables.get(\"paymentId\"));",
+							"});",
+							"",
+							"pm.test(\"Response contains payment status\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"});",
+							"",
+							"pm.test(\"Payment status is Authorized\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"Authorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/v1/payments/{{paymentId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments",
+						"{{paymentId}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200 Ok",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/v1/payments/4ce41536-6659-4b88-8346-b5497eaa95e",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"v1",
+								"payments",
+								"4ce41536-6659-4b88-8346-b5497eaa95e"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"id\": \"0f878131-4577-4a6d-8ca3-2b831fcaa193\",\n    \"status\": \"Authorized\",\n    \"cardNumberLastFour\": \"8877\",\n    \"expiryMonth\": 4,\n    \"expiryYear\": 2026,\n    \"currency\": \"GBP\",\n    \"amount\": 100\n}"
+				},
+				{
+					"name": "404 Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/v1/payments/4ce41536-6659-4b88-8346-b5497eaa952",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"v1",
+								"payments",
+								"4ce41536-6659-4b88-8346-b5497eaa952"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"message\": \"Page not found\"\n}"
+				},
+				{
+					"name": "400 Invalid argument format",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/v1/payments/0f8781",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"v1",
+								"payments",
+								"0f8781"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"message\": \"Invalid argument format\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GET declined",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time < 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Response contains payment id\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"});",
+							"",
+							"pm.test(\"Returned id matches requested id\", function () {",
+							"    pm.expect(jsonData.id).to.eql(pm.variables.get(\"paymentIdDecl\"));",
+							"});",
+							"",
+							"pm.test(\"Response contains payment status\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"status\");",
+							"});",
+							"",
+							"pm.test(\"Payment status is Declined\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"Declined\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/v1/payments/{{paymentIdDecl}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments",
+						"{{paymentIdDecl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET invalidArgument",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response time is under 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"message\");",
+							"});",
+							"",
+							"pm.test(\"Error message is not empty\", function () {",
+							"    pm.expect(jsonData.message).to.be.a(\"string\");",
+							"    pm.expect(jsonData.message.length).to.be.greaterThan(0);",
+							"});",
+							"",
+							"pm.test(\"Correct error message returned\", function () {",
+							"    pm.expect(jsonData.message).to.eql(\"Invalid argument format\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/v1/payments/invalid_argument",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments",
+						"invalid_argument"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET notFound",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"Response time is under 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is JSON\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\"))",
+							"        .to.include(\"application/json\");",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Response contains message field\", function () {",
+							"    pm.expect(jsonData).to.have.property(\"message\");",
+							"});",
+							"",
+							"pm.test(\"Correct error message returned\", function () {",
+							"    pm.expect(jsonData.message).to.eql(\"Page not found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/v1/payments/4ce41536-6659-4b88-8346-b5497eaa95f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"payments",
+						"4ce41536-6659-4b88-8346-b5497eaa95f"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

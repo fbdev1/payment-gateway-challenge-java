@@ -36,7 +36,7 @@ public class PostPaymentRequest implements Serializable {
 
   @NotNull(message = "Amount must not be empty")
   @Min(value = 1, message = "Invalid value of the amount, value must be more than 0")
-  @Max(value = Integer.MAX_VALUE, message = "Invalid value of the amount, value must be less than " + Integer.MAX_VALUE)
+  @Max(value = Integer.MAX_VALUE-1, message = "Invalid value of the amount, value must be less than " + Integer.MAX_VALUE)
   private int amount;
 
   @NotNull(message = "CVV must not be empty")

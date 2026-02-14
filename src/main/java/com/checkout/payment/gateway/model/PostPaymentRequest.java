@@ -22,6 +22,7 @@ public class PostPaymentRequest implements Serializable {
 
   @NotNull(message = "Expiry month must not be empty")
   @Min(value = 1, message = "Invalid value of the expiry month, value should be in a range 1-12")
+  @Max(value = 12, message = "Invalid value of the expiry month, value should be in a range 1-12")
   private int expiryMonth;
 
   @NotNull(message = "Expiry year must not be empty")
